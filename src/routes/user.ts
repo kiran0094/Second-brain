@@ -4,6 +4,7 @@ import { User } from "../model/user.ts";
 import jwt from "jsonwebtoken"
 import bycypt from "bcryptjs"
 import { loginmiddleware } from "./loginmiddleware.ts";
+import { Content } from "../model/content.ts";
 const userRouter = Router();
 
 const user=z.object({
@@ -11,11 +12,17 @@ const user=z.object({
     password:z.string().min(6).max(100),
 })
 
+const contentshema=z.object({
+  type: z.enum(["document", "tweet", "youtube", "link"]),
+  link: z.string().url(), // .url() ensures it is a valid web address
+  title: z.string().min(1, "Title is required"),
+  tags: z.array(z.string())
+})
+
 
 userRouter.post("/signup", async(req, res) => {
     try{
-    const data = user.parse(req.body);
-    const parsedData = user.safeParse(data);
+    const parsedData = user.safeParse(req.body);
     if (!parsedData.success) {
         return res.status(400).json({ error: parsedData.error });
         
@@ -65,21 +72,71 @@ userRouter.post("/login", async(req, res) => {
 
 userRouter.use(loginmiddleware)
 
-userRouter.post("/content", (req, res) => {
-    // Handle content creation logic here
-    res.send("Content created successfully");
+userRouter.post("/content", async(req, res) => {
+    try{
+    
+    const parsedData = contentshema.safeParse(req.body);
+    if (!parsedData.success) {
+        return res.status(400).json({ error: parsedData.error });
+        
+    }  
+   
+    const content=await Content.create(parsedData.data);
+    res.status(201).json({ message: "Content created successfully", content });
+    }catch(error){
+    res.status(500).json({ error: "Internal server error",
+        message:error instanceof Error ? error.message : "Unknown error"
+     });
+}    
+   
 });
-userRouter.get("/content", (req, res) => {
-    // Handle content retrieval logic here
-    res.send("Content retrieved successfully");
+
+userRouter.get("/content", async (req, res) => {
+    try {
+        const content = await Content.find();
+       res.json({content:content,
+            message:"content is delivered"
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : "Unknown error" });
+    }
 });
-userRouter.delete("/content/:id", (req, res) => {
-    // Handle content deletion logic here
-    res.send("Content deleted successfully");
+userRouter.get("/content/:id", async (req, res) => {
+    try {
+        const id=req.params
+        const content = await Content.find({id:id});
+        res.json({content:content,
+            message:"content is delivered"
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : "Unknown error" });
+    }
 });
+userRouter.delete("/content/:id", async (req, res) => {
+    try {
+        await Content.findByIdAndDelete(req.params.id);
+        res.json({ message: "Content deleted successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+});
+
 userRouter.put("/content/:id", (req, res) => {
-    // Handle content update logic here
-    res.send("Content updated successfully");
+    try{
+        const parsedData = contentshema.safeParse(req.body);
+    if (!parsedData.success) {
+        return res.status(400).json({ error: parsedData.error });
+        
+    }
+        const data =Content.findByIdAndUpdate(req.params.id, parsedData.data, { new: true });
+        res.json({ message: "Content updated successfully", data });
+
+
+    }
+    catch(error){
+      res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : "Unknown error" });
+
+    }
 });
 userRouter.get("/brain/share", (req, res) => {
     // Handle content search logic here
