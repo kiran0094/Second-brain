@@ -6,6 +6,9 @@ import mongoose  from "mongoose";
 dotenv.config();
 
 const app = Express();
+
+app.use(Express.json()); 
+
 app.use("/api/v1", userRouter);
 
 mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/brainly",)

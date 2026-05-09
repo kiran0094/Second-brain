@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken"
 import bycypt from "bcryptjs"
 import { loginmiddleware } from "./loginmiddleware.ts";
 import { Content } from "../model/content.ts";
+import bcrypt from "bcryptjs";
 const userRouter = Router();
 
 const user=z.object({
@@ -29,7 +30,8 @@ userRouter.post("/signup", async(req, res) => {
     }
     
     const {username,password}=parsedData.data
-    const hashedppassword= await bycypt.hash(password,134)
+    const hashedppassword= await bcrypt.hash(password,10)
+    console.log(parsedData.data)
     const users=await User.create({username:username,password:hashedppassword});
     res.status(201).json({ message: "User created successfully", users });
     }catch(error){
@@ -59,7 +61,7 @@ userRouter.post("/login", async(req, res) => {
         return res.status(401).json({ error: "Invalid  password" });
     }
 
-    const token=jwt.sign({id: users._id.toString()},process.env.JWT_SECRET || 'default_secret')
+    const token=jwt.sign({id: users._id.toString()},process.env.JWTSECRAT as string)
 
     res.status(201).json({token:token,
       message:"your logged in"
