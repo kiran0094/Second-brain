@@ -1,6 +1,5 @@
 import{Schema,model,Types}from"mongoose";
 
-import { link } from "node:fs";
 
 const contentTypes = ['image', 'video', 'article', 'audio']; // Extend as needed
 

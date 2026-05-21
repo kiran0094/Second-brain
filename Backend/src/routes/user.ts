@@ -15,7 +15,7 @@ const user=z.object({
 
 const contentshema=z.object({
   type: z.enum(["document", "tweet", "youtube", "link"]),
-  link: z.string().url(), // .url() ensures it is a valid web address
+  link: z.url(), // .url() ensures it is a valid web address
   title: z.string().min(1, "Title is required"),
   tags: z.array(z.string())
 })
@@ -83,7 +83,7 @@ userRouter.post("/content", async(req, res) => {
         
     }  
    
-    const content=await Content.create(parsedData.data);
+    const content=await Content.create({ ...parsedData.data, userId: req.body.userId });
     res.status(201).json({ message: "Content created successfully", content });
     }catch(error){
     res.status(500).json({ error: "Internal server error",
@@ -95,7 +95,7 @@ userRouter.post("/content", async(req, res) => {
 
 userRouter.get("/content", async (req, res) => {
     try {
-        const content = await Content.find();
+        const content = await Content.find({userId: req.body.userId}).populate("userId", "username")
        res.json({content:content,
             message:"content is delivered"
         });
@@ -105,8 +105,8 @@ userRouter.get("/content", async (req, res) => {
 });
 userRouter.get("/content/:id", async (req, res) => {
     try {
-        const id=req.params
-        const content = await Content.find({id:id});
+        const id=req.params.id
+        const content = await Content.find({ _id: id, userId: req.body.userId }).populate("userId", "username");
         res.json({content:content,
             message:"content is delivered"
         });
@@ -116,7 +116,7 @@ userRouter.get("/content/:id", async (req, res) => {
 });
 userRouter.delete("/content/:id", async (req, res) => {
     try {
-        await Content.findByIdAndDelete(req.params.id);
+        await Content.findByIdAndDelete({ _id: req.params.id, userId: req.body.userId });
         res.json({ message: "Content deleted successfully" });
     } catch (error) {
         res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : "Unknown error" });
