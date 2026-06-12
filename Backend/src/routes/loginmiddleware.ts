@@ -17,7 +17,7 @@ export const loginmiddleware:RequestHandler=(req,res,next)=>{
             massage:"unauthcated acess"
         })
     }
-    req.body.userId=verifytoken.id
+    req.headers.userId=verifytoken.id
 
     next();
 
