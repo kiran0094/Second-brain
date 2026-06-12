@@ -33,6 +33,10 @@ userRouter.post("/signup", async(req, res) => {
     }
     
     const {username,password}=parsedData.data
+    const existingUser=await User.findOne({username:username})
+    if(existingUser){
+        return res.status(400).json({ error: "Username already exists" });
+    }
     const hashedppassword= await bcrypt.hash(password,10)
     console.log(parsedData.data)
     const users=await User.create({username:username,password:hashedppassword});
