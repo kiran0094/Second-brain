@@ -1,5 +1,6 @@
 import Button from './ui/button'
 import {useState} from 'react'
+import Input from './ui/input'
 
 type Modelprops = {
     closeModal: () => void
@@ -45,12 +46,10 @@ const Model = (props: Modelprops) => {
             <form className='flex flex-col '>
 
            
-            <label htmlFor='title' className='block mt-2 font-semibold'>Title</label>
-            <input type='text' id='title' className='w-full border border-gray-300 rounded px-3 py-2' value={data.title} onChange={(e)=>handlechange(e)} />
-          
-          
-            <label htmlFor='link' className='block mt-2 font-semibold'>Link</label>
-            <input type='text' id='link' className='w-full border border-gray-300 rounded px-3 py-2' value={data.link} onChange={(e)=>handlechange(e)} />
+            
+            <Input type='text' id='title' value={data.title} onChange={(e)=>handlechange(e)} />  
+                     
+            <Input type='text' id='link' value={data.link} onChange={(e)=>handlechange(e)} />
 
             <label htmlFor='type' className='block mt-2 font-semibold'>Type</label>
             <select id='type' className='w-full border border-gray-300 rounded px-3 py-2' value={data.type} onChange={(e)=>handlechange(e)}>
@@ -59,8 +58,8 @@ const Model = (props: Modelprops) => {
               <option value='article'>Article</option>
             </select>
 
-             <label htmlFor='tags' className='block mt-2 font-semibold'>Tags</label>
-            <input type='text' id='tags' className='w-full border border-gray-300 rounded px-3 py-2' value={data.tags.join(', ')} onChange={(e)=>handlechange(e)} placeholder='Enter tags separated by commas' />
+            
+            <Input type='text' id='tags' value={data.tags.join(', ')} onChange={(e)=>handlechange(e)} placeholder='Enter tags separated by commas' />
             </form>
               
             <div className='flex justify-between mt-4'>
