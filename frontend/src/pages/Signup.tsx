@@ -1,6 +1,7 @@
 import {useState} from 'react'
 import Input from '../component/ui/input'
 import Button from '../component/ui/button'
+import axios from 'axios';
 
 
 type SignupData = {
@@ -14,12 +15,16 @@ const Signup = () => {
   })
   const [loading, setLoading] = useState<boolean>(false);
   
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     
     e.preventDefault();
     setLoading(true);
-    // Handle form submission logic here
-    console.log('Form submitted:', data);
+      const response = await axios.post('http://localhost:3000/api/v1/signup', data);
+
+    console.log('response', response.data);   
+    
+    
+   
     setLoading(false);
   }
   return (

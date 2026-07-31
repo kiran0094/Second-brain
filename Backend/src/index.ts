@@ -2,12 +2,15 @@ import  Express  from "express";
 import userRouter from "./routes/user.ts"
 import dotenv from "dotenv";
 import mongoose  from "mongoose";
+import cors from "cors";
+
 
 dotenv.config();
 
 const app = Express();
 
 app.use(Express.json()); 
+app.use(cors());
 
 app.use("/api/v1", userRouter);
 
