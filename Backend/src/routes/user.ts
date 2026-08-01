@@ -11,7 +11,13 @@ import bcrypt from "bcryptjs";
 import { random } from "../utils.ts";
 const userRouter = Router();
 
-const user=z.object({
+const signupSchema = z.object({
+    username: z.string().min(3).max(20),
+    password: z.string().min(6).max(100),
+    email: z.string().email()
+});
+
+const loginSchema=z.object({
     username:z.string().min(3).max(20),
     password:z.string().min(6).max(100),
 })
@@ -26,20 +32,20 @@ const contentshema=z.object({
 
 userRouter.post("/signup", async(req, res) => {
     try{
-    const parsedData = user.safeParse(req.body);
+    const parsedData = signupSchema.safeParse(req.body);
     if (!parsedData.success) {
         return res.status(400).json({ error: parsedData.error });
         
     }
     
-    const {username,password}=parsedData.data
-    const existingUser=await User.findOne({username:username})
+    const {username,password,email}=parsedData.data
+    const existingUser=await User.findOne({email:email})
     if(existingUser){
-        return res.status(400).json({ error: "Username already exists" });
+        return res.status(400).json({ error: "Email already exists" });
     }
     const hashedppassword= await bcrypt.hash(password,10)
     console.log(parsedData.data)
-    const users=await User.create({username:username,password:hashedppassword});
+    const users=await User.create({username:username,password:hashedppassword,email:email});
     res.status(201).json({ message: "User created successfully", users });
     }catch(error){
     res.status(500).json({ error: "Internal server error",
@@ -51,19 +57,19 @@ userRouter.post("/signup", async(req, res) => {
 
 userRouter.post("/login", async(req, res) => {
     try{
-    const data = user.parse(req.body);
-    const parsedData = user.safeParse(data);
+    const data = loginSchema.parse(req.body);
+    const parsedData = loginSchema.safeParse(data);
     if (!parsedData.success) {
         return res.status(400).json({ error: parsedData.error });
         
     }
     const {username,password}=data
-    const hashedppassword=bycypt.hash(password,134)
+    const hashedppassword= await bcrypt.hash(password,10)
     const users=await User.findOne({username:username});
     if(!users){
         return res.status(401).json({ error: "Invalid username" });
     }
-    const matchpassword=bycypt.compare(password,users?.password)
+    const matchpassword=await bcrypt.compare(hashedppassword,users?.password)
      if(!matchpassword){
         return res.status(401).json({ error: "Invalid  password" });
     }

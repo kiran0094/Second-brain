@@ -7,10 +7,12 @@ import axios from 'axios';
 type SignupData = {
   email: string;
   password: string;
+  username: string;
 }
 const Signup = () => {
   const [data, setData] = useState<SignupData>({
     email: '',
+    username: '',
     password: ''
   })
   const [loading, setLoading] = useState<boolean>(false);
@@ -34,7 +36,8 @@ const Signup = () => {
         <p className='text-gray-600 mb-4 text-center'>Create your account to get started.</p>
         <form onSubmit={handleSubmit} className='space-y-4'>
           
-            <Input type='email' id='email' placeholder='Enter your email' value={data.email} onChange={(e) => setData({...data, email: e.target.value})} />    
+            <Input type='email' id='email' placeholder='Enter your email' value={data.email} onChange={(e) => setData({...data, email: e.target.value})} /> 
+            <Input type='username' id='username' placeholder='Enter your username' value={data.username} onChange={(e) => setData({...data, username: e.target.value})} />    
            <Input type='password' id='password' placeholder='Enter your password' value={data.password} onChange={(e) => setData({...data, password: e.target.value})} />          
           
           <Button variant='primary'  type='submit' className='w-full flex justify-center items-center' loading={loading}>
