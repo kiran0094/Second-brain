@@ -17,9 +17,14 @@ const signupSchema = z.object({
     email: z.string().email()
 });
 
+const identifierSchema = z.union([
+  z.string().email("Invalid email address"),
+  z.string().min(3, "Username must be at least 3 characters"),
+]);
+
 const loginSchema=z.object({
-    username:z.string().min(3).max(20),
-    password:z.string().min(6).max(100),
+    identifier: identifierSchema,
+    password: z.string().min(6).max(100),
 })
 
 const contentshema=z.object({
@@ -57,19 +62,19 @@ userRouter.post("/signup", async(req, res) => {
 
 userRouter.post("/login", async(req, res) => {
     try{
-    const data = loginSchema.parse(req.body);
-    const parsedData = loginSchema.safeParse(data);
+   
+    const parsedData = loginSchema.safeParse(req.body);
     if (!parsedData.success) {
         return res.status(400).json({ error: parsedData.error });
         
     }
-    const {username,password}=data
+    const {identifier,password}=parsedData.data
     const hashedppassword= await bcrypt.hash(password,10)
-    const users=await User.findOne({username:username});
+    const users=await User.findOne({$or: [{email:identifier}, {username:identifier}]});
     if(!users){
-        return res.status(401).json({ error: "Invalid username" });
+        return res.status(401).json({ error: "Invalid identifier" });
     }
-    const matchpassword=await bcrypt.compare(hashedppassword,users?.password)
+    const matchpassword=await bcrypt.compare(password,users?.password)
      if(!matchpassword){
         return res.status(401).json({ error: "Invalid  password" });
     }
