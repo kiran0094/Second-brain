@@ -1,6 +1,7 @@
 import Button from './ui/button'
 import {useState} from 'react'
 import Input from './ui/input'
+import axios from 'axios'
 
 type Modelprops = {
     closeModal: () => void
@@ -16,14 +17,27 @@ type FormData = {
 
 const Model = (props: Modelprops) => {
     const handlechange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { id, value } = e.target;
-        setData((prevData) => ({
-            ...prevData,
-            [id]: value,
-        }));
+  const { id, value } = e.target;
+
+  setData((prevData) => {
+    if (id === "tags") {
+      return {
+        ...prevData,      
+        tags: value.split(",").map((tag) => tag.trimStart()),
+      };
     }
-   const handleSubmit = () => {
-    console.log("Submitted:", data);
+
+    return {
+      ...prevData,
+      [id]: value,
+    };
+  });
+};
+   const handleSubmit = async () => {
+     const response = await axios.post('http://localhost:3000/api/v1/content', data,{
+        withCredentials: true,
+      });
+    console.log("Submitted:", response.data);
     
     props.closeModal();
   };
@@ -59,7 +73,7 @@ const Model = (props: Modelprops) => {
             </select>
 
             
-            <Input type='text' id='tags' value={data.tags.join(', ')} onChange={(e)=>handlechange(e)} placeholder='Enter tags separated by commas' />
+            <Input type='text' id='tags' value={data.tags.join(', ')  } onChange={(e)=>handlechange(e)} placeholder='Enter tags separated by commas' />
             </form>
               
             <div className='flex justify-between mt-4'>

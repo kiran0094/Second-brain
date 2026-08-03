@@ -8,13 +8,13 @@ interface tokenpayload extends JwtPayload {
 
 export const loginmiddleware:RequestHandler=(req,res,next)=>{
 
-    const token =req.headers.token
+    const token = req.cookies?.token;
 
     const verifytoken=jwt.verify(token as string,process.env.JWTSECRAT as string) as tokenpayload
 
     if(!verifytoken){
         res.status(401).json({
-            massage:"unauthcated acess"
+            message:"unauthorized access"
         })
     }
     req.headers.userId=verifytoken.id

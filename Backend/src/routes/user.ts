@@ -81,9 +81,21 @@ userRouter.post("/login", async(req, res) => {
 
     const token=jwt.sign({id: users._id.toString()},process.env.JWTSECRAT as string)
 
-    res.status(201).json({token:token,
+    res.cookie("token", token, {
+      httpOnly: true, // Cannot be accessed by client-side JS
+      secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      sameSite: "lax", // Allows cross-site requests in development
+      maxAge: 24 * 60 * 60 * 1000, // 1 day in milliseconds
+    });
+
+    res.status(200).json({
+       user: {
+        username: users.username,
+        email: users.email
+      },    
       message:"your logged in"
      });
+
     }catch(error){
     res.status(500).json({ error: "Internal server error",
         message:error instanceof Error ? error.message : "Unknown error"
