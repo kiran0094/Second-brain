@@ -120,6 +120,17 @@ userRouter.get("/brain/:sharelink", async (req, res) => {
 
 userRouter.use(loginmiddleware)
 
+userRouter.get("/me", async (req, res) => {
+    try {
+        const userIdHeader = Array.isArray(req.headers.userId)
+            ? req.headers.userId[0]
+            : req.headers.userId;
+      res.status(200).json({ message: "User is authenticated", userId: userIdHeader });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error", message: error instanceof Error ? error.message : "Unknown error" });
+    }
+});
+
 userRouter.post("/content", async (req, res) => {
   try {
     const parsedData = contentshema.safeParse(req.body);
@@ -179,7 +190,7 @@ userRouter.get("/content", async (req, res) => {
             return res.status(401).json({ error: "Missing user id" });
         }
 
-        const content = await Content.find({ userId: userIdHeader as any }).populate("userId", "username");
+        const content = await Content.find({ userId: userIdHeader as any }).populate("userId", "username").populate("tags", "name");
         res.json({content:content,
             message:"content is delivered"
         });

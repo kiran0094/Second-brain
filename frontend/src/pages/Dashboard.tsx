@@ -1,14 +1,49 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import Button from '../component/ui/button'
 import { Plus } from '../icons/plus'
 import {Share} from '../icons/share'
 import Card from '../component/ui/card'
 import Model from '../component/model'
 import Sidebar from '../component/sidebar'
+import axios from 'axios'
 
+type User = Record<"_id" | "username", string>;
+
+type Content = Record<
+"_id" | "title" | "link",
+string
+> & {
+  type:'tweet' | 'youtube';
+  tags: Record<"_id" | "name", string>[];
+  userId: User;
+};
+
+type ApiResponse = {
+  content: Content[];
+};
 function Dashboard() {
+  
   const [count, setCount] = useState(0)
   const [isOpen, setIsOpen] = useState(false)
+  const [responseData, setResponseData] = useState<ApiResponse | null>(null);
+
+  useEffect(() => {
+    
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('http://localhost:3000/api/v1/content', {
+          withCredentials: true,
+        })
+        setResponseData(response.data)
+
+        console.log('Fetched:', response.data)
+      } catch (err) {
+        console.error('Fetch error:', err)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   const toggleModal = () => {
     setIsOpen(!isOpen)
@@ -22,7 +57,7 @@ function Dashboard() {
 
     <div className='bg-background w-4/5'>
 
-    <div className='flex gap-4 mx-2 my-4 items-start'>
+    <div className='flex gap-4 mx-2 my-4 items-end justify-end'>
       
     {isOpen && (
       <Model closeModal={toggleModal} />
@@ -35,12 +70,20 @@ function Dashboard() {
       </Button>
     </div>
     <div className='flex gap-3 mx-2 my-4 items-start'>
-      <Card title="My Card" link="https://www.youtube.com/watch?v=87T8xE-_yeo" type="youtube" tags={["React", "TypeScript"]} />
-      <Card title="My Card" link="https://x.com/JobFound5/status/2069081308756894065" type="tweet" tags={["React", "TypeScript"]} />
-      </div>    
+      {responseData?.content.map((item) => (
+        <Card
+          key={item._id}
+          title={item.title}
+          link={item.link}
+          type={item.type}
+          tags={item.tags.map((tag) => tag.name)}
+        
+        />
+      ))}
     </div>
-    </div>
-    </>
+  </div>
+</div>
+</>
   )
 }
 
