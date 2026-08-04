@@ -119,6 +119,17 @@ userRouter.get("/brain/:sharelink", async (req, res) => {
 });
 
 userRouter.use(loginmiddleware)
+userRouter.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax", // use the same value you used when setting the cookie
+  });
+
+  res.status(200).json({
+    message: "Logged out successfully",
+  });
+});
 
 userRouter.get("/me", async (req, res) => {
     try {

@@ -5,6 +5,7 @@ import axios from 'axios'
 
 type Modelprops = {
     closeModal: () => void
+    refreshData: () => void
 }
 
 type FormData = {
@@ -40,6 +41,7 @@ const Model = (props: Modelprops) => {
     console.log("Submitted:", response.data);
     
     props.closeModal();
+    props.refreshData();
   };
 
     const[data,setData] = useState<FormData>({
@@ -80,7 +82,10 @@ const Model = (props: Modelprops) => {
            <Button variant="primary" onClick={handleSubmit}>
             submit
           </Button>
-          <Button variant="destructive" onClick={props.closeModal}>
+          <Button variant="destructive" onClick={() => {
+            props.closeModal();
+            props.refreshData();
+          }}>
             Close
           </Button>
             </div>

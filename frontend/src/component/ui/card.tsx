@@ -1,30 +1,51 @@
 import { Share } from "../../icons/share"
 import { Plus } from "../../icons/plus"
-import { Children, type ReactElement } from "react"
+import Delete from "../../icons/delete"
+import axios from "axios"
 
 
 interface CardProps{
+  id:string;
   link:string
   title:string 
  type:  'tweet' | 'youtube' 
  tags?: string[]
+ refreshData?: () => void
 
 }
 
-const Card = ({title,link,type,tags}:CardProps) => {
+const Card = ({title,link,type,tags,id,refreshData}:CardProps) => {
+  const handleDelete = async (id: string) => {
+    try {
+      const response = await axios.delete(`http://localhost:3000/api/v1/content/${id}`, {
+        withCredentials: true,
+      });
+      if (response.status !== 200) {
+        throw new Error('Failed to delete content');
+      }
+      // Handle successful deletion (e.g., update UI)
+      if (refreshData) {
+        refreshData();
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+    }
+  };
+
   return (
     <div className='bg-white rounded-md p-4 border border-gray-200 max-w-72 mx-3'>
       <div className='flex items-center justify-between'>
-        <div className='flex items-center gap-2 '>
+        <div className='flex place-items-center-safe gap-2'>
           <Plus size="md" />
-
-          <h2 className="font-semibold text-md px-4">{title}</h2>
+          <h2 className="font-semibold text-md pr-4">{title}</h2>
         </div>
         <div className='flex items-center gap-4 text-gray-500'> 
           <a href={link} target="_blank" rel="noopener noreferrer">
             <Share size="md"/>
           </a>
-          <Share size="md"/>
+        <button className="hover:text-red-500" onClick={() => handleDelete(id)}>
+          <Delete size="md"/>
+          </button>
         </div>       
       </div>
       {type === 'youtube'&&(

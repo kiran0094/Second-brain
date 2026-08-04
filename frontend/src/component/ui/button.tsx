@@ -27,7 +27,7 @@ const button = ({ children, variant, startIcon, endIcon, onClick, type, classNam
   ${className} 
   ${loading ? 'bg-gray-500  text-white' : variantClass[variant]}
 `} disabled={loading}>
-      <div className='flex items-center gap-2'>
+      <div className='flex items-center justify-between w-full'>
       {startIcon}
       {children}
       {endIcon}

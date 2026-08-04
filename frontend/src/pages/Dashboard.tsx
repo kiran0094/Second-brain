@@ -27,9 +27,7 @@ function Dashboard() {
   const [isOpen, setIsOpen] = useState(false)
   const [responseData, setResponseData] = useState<ApiResponse | null>(null);
 
-  useEffect(() => {
-    
-    const fetchData = async () => {
+   const fetchData = async () => {
       try {
         const response = await axios.get('http://localhost:3000/api/v1/content', {
           withCredentials: true,
@@ -41,7 +39,7 @@ function Dashboard() {
         console.error('Fetch error:', err)
       }
     }
-
+  useEffect(() => { 
     fetchData()
   }, [])
 
@@ -60,7 +58,7 @@ function Dashboard() {
     <div className='flex gap-4 mx-2 my-4 items-end justify-end'>
       
     {isOpen && (
-      <Model closeModal={toggleModal} />
+      <Model closeModal={toggleModal} refreshData={fetchData} />
     )}
       <Button variant="primary" onClick={toggleModal} startIcon={<Plus/>}>
         Add content
@@ -72,11 +70,14 @@ function Dashboard() {
     <div className='flex gap-3 mx-2 my-4 items-start'>
       {responseData?.content.map((item) => (
         <Card
+          id={item._id}
           key={item._id}
           title={item.title}
           link={item.link}
           type={item.type}
           tags={item.tags.map((tag) => tag.name)}
+          refreshData={fetchData}
+        
         
         />
       ))}
